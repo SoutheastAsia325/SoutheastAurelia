@@ -275,17 +275,47 @@ class SoutheastAurelia {
     el.style.height = Math.min(el.scrollHeight, 100) + 'px';
   }
 
-  addMessage(role, text) {
+  addMessage(role, text, thinking) {
     const div = document.createElement('div');
     div.className = 'message ' + role;
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = role === 'ai' ? 'SA' : '我';
-    const content = document.createElement('div');
-    content.className = 'message-content';
-    content.innerHTML = this.formatText(text);
-    div.appendChild(avatar);
-    div.appendChild(content);
+
+    // 用户消息：保留头像+气泡
+    if (role === 'user') {
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = '我';
+      const content = document.createElement('div');
+      content.className = 'message-content user-bubble';
+      content.textContent = text;
+      div.appendChild(avatar);
+      div.appendChild(content);
+      this.messagesEl.appendChild(div);
+      this.messagesEl.parentElement.scrollTop = this.messagesEl.parentElement.scrollHeight;
+      return;
+    }
+
+    // AI 消息：无气泡，纯文字 + 可选思考过程（灰色竖线）
+    if (thinking) {
+      const think = document.createElement('div');
+      think.className = 'thinking-block';
+      const thinkToggle = document.createElement('div');
+      thinkToggle.className = 'thinking-toggle';
+      thinkToggle.innerHTML = '<span class="thinking-icon">●</span> 思考过程';
+      thinkToggle.addEventListener('click', () => {
+        think.classList.toggle('collapsed');
+      });
+      const thinkContent = document.createElement('div');
+      thinkContent.className = 'thinking-content';
+      thinkContent.textContent = thinking;
+      think.appendChild(thinkToggle);
+      think.appendChild(thinkContent);
+      div.appendChild(think);
+    }
+
+    const textEl = document.createElement('div');
+    textEl.className = 'message-content ai-text';
+    textEl.innerHTML = this.formatText(text);
+    div.appendChild(textEl);
     this.messagesEl.appendChild(div);
     this.messagesEl.parentElement.scrollTop = this.messagesEl.parentElement.scrollHeight;
   }
@@ -306,25 +336,38 @@ class SoutheastAurelia {
       const persona = this.getPersonaPrompt();
       const agentPrompt = this.agents[this.currentAgent].prompt;
       const fullPrompt = persona + '\n\n' + agentPrompt;
+
+      // 快速 = 低思考深度，进阶 = 高思考深度
+      const reasoningEffort = this.currentMode === 'quick' ? 'low' : 'high';
+
+      const body = {
+        model: this.config.model,
+        messages: [
+          { role: 'system', content: fullPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        stream: false,
+        reasoning_effort: reasoningEffort
+      };
+
       const res = await fetch(this.config.baseUrl + '/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + this.config.apiKey
         },
-        body: JSON.stringify({
-          model: this.config.model,
-          messages: [{ role: 'system', content: fullPrompt }, { role: 'user', content: userMessage }],
-          stream: false
-        })
+        body: JSON.stringify(body)
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
+      const msg = data.choices[0].message;
+      const content = msg.content || '';
+      const thinking = msg.reasoning_content || msg.reasoning || msg.thinking || '';
       this.thinkingIndicator.classList.remove('show');
-      this.addMessage('ai', data.choices[0].message.content);
+      this.addMessage('ai', content, thinking);
     } catch (e) {
       this.thinkingIndicator.classList.remove('show');
-      this.addMessage('ai', '请求失败：' + e.message);
+      this.addMessage('ai', '请求失败：' + e.message, '');
     }
   }
 
@@ -332,6 +375,8 @@ class SoutheastAurelia {
     this.apiBaseUrl.value = this.config.baseUrl;
     this.apiKey.value = this.config.apiKey;
     this.modelName.value = this.config.model;
+    // 有 key 和 url 就自动拉模型列表
+    if (this.config.apiKey && this.config.baseUrl) this.fetchModelList();
     this.configModal.style.display = 'flex';
   }
   closeConfigModal() { this.configModal.style.display = 'none'; }
@@ -341,6 +386,35 @@ class SoutheastAurelia {
     this.config.model = this.modelName.value.trim() || 'gpt-4o';
     this.saveConfigToStorage();
     this.closeConfigModal();
+    // 自动拉取模型列表
+    if (this.config.apiKey && this.config.baseUrl) {
+      this.fetchModelList();
+    }
+  }
+
+  async fetchModelList() {
+    try {
+      const res = await fetch(this.config.baseUrl + '/models', {
+        headers: { 'Authorization': 'Bearer ' + this.config.apiKey }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const models = (data.data || []).map(m => m.id || m.name).filter(Boolean);
+      if (models.length === 0) return;
+      // 把模型列表写入 select
+      const sel = this.modelName;
+      sel.innerHTML = '';
+      models.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id; opt.textContent = id;
+        sel.appendChild(opt);
+      });
+      // 若当前模型在列表中则选中
+      if (models.includes(this.config.model)) sel.value = this.config.model;
+      else this.config.model = models[0];
+      sel.value = this.config.model;
+      this.saveConfigToStorage();
+    } catch (e) { /* 静默失败 */ }
   }
 
   loadConfig() {

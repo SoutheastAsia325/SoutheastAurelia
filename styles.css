@@ -238,12 +238,20 @@ html, body {
   font-size: 14px; line-height: 1.6; word-wrap: break-word;
 }
 .message.ai .message-content {
-  background: #262626; border: 1px solid #333333;
+  background: transparent; border: none;
   color: #f5f5f5;
+  font-size: 14px; line-height: 1.7;
 }
-.message.user .message-content {
+/* AI 纯文字区（无框） */
+.message.ai .ai-text {
+  background: transparent; border: none; padding: 2px 0;
+  font-size: 14px; line-height: 1.7;
+}
+.message.user .user-bubble {
   background: #3a3a3a;
   color: #f5f5f5;
+  border-radius: 16px;
+  padding: 10px 14px;
 }
 .message-content pre {
   background: var(--bg-tertiary); border-radius: 8px; padding: 10px;
@@ -406,3 +414,30 @@ button:focus, textarea:focus, input:focus, [tabindex]:focus {
   .welcome-title { white-space: nowrap; }
   .welcome-content { max-width: 600px; }
 }
+
+/* 思考过程区域（灰色竖线 + 折叠） */
+.thinking-block {
+  border-left: 3px solid #555555;
+  padding: 4px 0 4px 12px;
+  margin-bottom: 10px;
+  max-width: 85%;
+}
+.thinking-block.collapsed .thinking-content { display: none; }
+.thinking-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #888888; cursor: pointer;
+  padding: 2px 0; user-select: none;
+}
+.thinking-icon { font-size: 10px; color: #888888; }
+.thinking-content {
+  font-size: 13px; color: #888888; line-height: 1.6;
+  margin-top: 4px; white-space: pre-wrap;
+  max-height: 200px; overflow-y: auto;
+  background: rgba(85, 85, 85, 0.08);
+  border-radius: 8px; padding: 8px 10px;
+}
+/* 浅色模式下思考区域 */
+body.light .thinking-block { border-left-color: #cccccc; }
+body.light .thinking-toggle { color: #999999; }
+body.light .thinking-content { color: #888888; background: rgba(0,0,0,0.03); }
+body.light .thinking-icon { color: #999999; }
