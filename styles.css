@@ -336,10 +336,9 @@ body.light .logo-text-big {
 .thinking-text { font-size: 12px; color: var(--text-secondary); }
 /* 聊天输入栏 */
 .input-area {
-  padding: 10px 16px;
-  padding-bottom: calc(10px + var(--safe-bottom));
+  padding: 8px 16px;
+  padding-bottom: calc(6px + var(--safe-bottom));
   background: var(--bg-primary);
-  border-top: 1px solid var(--bg-tertiary);
   z-index: 50;
 }
 .input-wrapper {
@@ -436,30 +435,31 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 
 /* 平板适配（字体放大 + 消息居中优化） */
 @media (min-width: 768px) {
-  .welcome-content { max-width: 600px; }
-  .message { max-width: 75%; }
-  .message.ai { max-width: 70%; }
-  /* AI 回复字体放大 */
-  .ai-text { font-size: 16px; }
-  .ai-text h1 { font-size: 24px; }
-  .ai-text h2 { font-size: 22px; }
-  .ai-text h3 { font-size: 20px; }
-  .ai-text p { font-size: 16px; }
-  .ai-text li { font-size: 16px; }
-  .ai-text code { font-size: 14px; }
-  .ai-text pre code { font-size: 14px; }
-  .thinking-content { font-size: 14px; }
-  /* 用户气泡字体放大 */
-  .user-bubble { font-size: 15px; }
-}
-/* 大屏进一步优化 */
-@media (min-width: 1024px) {
-  .message { max-width: 65%; }
-  .message.ai { max-width: 60%; }
-  .ai-text { font-size: 17px; }
+  .welcome-content { max-width: 680px; }
+  .message { max-width: 72%; }
+  .message.ai { max-width: 68%; }
+  .ai-text { font-size: 18px; }
   .ai-text h1 { font-size: 26px; }
   .ai-text h2 { font-size: 24px; }
   .ai-text h3 { font-size: 22px; }
+  .ai-text p { font-size: 18px; }
+  .ai-text li { font-size: 18px; }
+  .ai-text code { font-size: 15px; }
+  .ai-text pre code { font-size: 15px; }
+  .thinking-content { font-size: 16px; }
+  .user-bubble { font-size: 17px; }
+  .welcome-title { font-size: 32px; }
+  .welcome-input { font-size: 16px; }
+}
+/* 大屏进一步优化 */
+@media (min-width: 1024px) {
+  .message { max-width: 62%; }
+  .message.ai { max-width: 58%; }
+  .ai-text { font-size: 19px; }
+  .ai-text h1 { font-size: 28px; }
+  .ai-text h2 { font-size: 26px; }
+  .ai-text h3 { font-size: 24px; }
+  .welcome-title { font-size: 36px; }
 }
 /* 横屏适配 */
 @media (orientation: landscape) and (max-height: 500px) {

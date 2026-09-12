@@ -129,7 +129,7 @@ class SoutheastAurelia {
     // 配置弹窗
     this.configModalClose.addEventListener('click', () => this.closeConfigModal());
     this.configCancel.addEventListener('click', () => this.closeConfigModal());
-    this.configSave.addEventListener('click', () => this.saveConfig());
+    this.configSave.addEventListener('click', () => { this.saveConfig(); this.fetchModelList(); });
 
     // Agent 授权弹窗
     this.agentAuthClose.addEventListener('click', () => this.closeAgentAuthModal());
@@ -190,6 +190,7 @@ class SoutheastAurelia {
       setTimeout(() => {
         this.closeAgentAuthModal();
       }, 600);
+      this.fetchModelList();
     } catch (e) {
       this.agentAuthStatus.textContent = '授权失败：' + e.message;
     }
