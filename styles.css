@@ -231,13 +231,23 @@ body.light .logo-text-big {
   padding: 16px;
 }
 .messages {
-  display: flex; flex-direction: column; gap: 14px;
-  padding-left: 12%; padding-right: 12%;
+  display: flex; flex-direction: column; gap: 0;
+  padding-left: 16px; padding-right: 16px;
+  padding-top: 8px; padding-bottom: 8px;
 }
-.message { display: flex; gap: 0; width: 100%; animation: msgIn 0.3s ease; }
+.message {
+  display: flex; gap: 0; width: 100%; animation: msgIn 0.25s ease;
+  padding-bottom: 6px;
+}
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.message.user { justify-content: flex-end; flex-direction: row-reverse; }
-.message.user .user-bubble { max-width: 80%; }
+.message.user { justify-content: flex-end; }
+.message.user .user-bubble {
+  max-width: 82%;
+  border-radius: 16px;
+  padding: 10px 14px;
+  font-size: 15px; line-height: 1.6;
+  word-wrap: break-word;
+}
 .message-avatar { display: none; }
 .message-content {
   padding: 10px 14px; border-radius: var(--radius-lg);
@@ -245,20 +255,23 @@ body.light .logo-text-big {
 }
 .message.ai .message-content {
   background: transparent; border: none;
-  color: var(--text-primary);
-  font-size: 14px; line-height: 1.7;
+  color: #d0d0d0;
+  font-size: 15px; line-height: 1.7;
 }
 /* AI 纯文字区（无框） */
 .message.ai .ai-text {
   background: transparent; border: none; padding: 2px 0;
-  font-size: 14px; line-height: 1.7;
-  color: var(--text-primary);
+  font-size: 15px; line-height: 1.7;
+  color: #d0d0d0;
 }
+body.light .message.ai .ai-text { color: #2a2a2a; }
+body.light .message.ai .message-content { color: #2a2a2a; }
 /* AI 消息居中 */
 .message.ai {
   justify-content: flex-start;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 }
 .message.ai .thinking-block,
 .message.ai .ai-text {
@@ -267,18 +280,22 @@ body.light .logo-text-big {
 }
 /* Markdown 排版优化 */
 .ai-text h1, .ai-text h2, .ai-text h3, .ai-text h4 {
-  font-size: 16px; font-weight: 700; margin: 16px 0 8px 0;
-  color: var(--text-primary);
+  font-size: 16px; font-weight: 700; margin: 14px 0 6px 0;
+  color: #e0e0e0;
 }
-.ai-text h1 { font-size: 20px; }
-.ai-text h2 { font-size: 18px; }
+.ai-text h1 { font-size: 18px; }
+.ai-text h2 { font-size: 17px; }
 .ai-text h3 { font-size: 16px; }
-.ai-text p { margin: 8px 0; line-height: 1.7; }
+body.light .ai-text h1, body.light .ai-text h2, body.light .ai-text h3, body.light .ai-text h4,
+body.light .ai-text h1, body.light .ai-text h2, body.light .ai-text h3 {
+  color: #1a1a1a;
+}
+.ai-text p { margin: 6px 0; line-height: 1.7; font-size: 15px; }
 .ai-text ul, .ai-text ol {
   margin: 8px 0; padding-left: 20px;
   list-style: disc;
 }
-.ai-text li { margin: 4px 0; line-height: 1.6; }
+.ai-text li { margin: 4px 0; line-height: 1.7; font-size: 15px; }
 .ai-text blockquote {
   border-left: 3px solid #888888;
   padding: 4px 12px; margin: 10px 0;
@@ -287,17 +304,18 @@ body.light .logo-text-big {
 .ai-text code {
   background: #2a2a2a; border-radius: 4px;
   padding: 2px 6px; font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 13px; color: #e0e0e0;
+  font-size: 13px; color: #e8e8e8;
 }
+body.light .ai-text code { background: #e8e8e8; color: #1a1a1a; }
 .ai-text pre {
-  background: #1e1e1e; border: 1px solid #333333;
-  border-radius: 8px; padding: 12px;
-  overflow-x: auto; margin: 10px 0;
+  background: #1e1e1e; border: none; border-radius: 8px;
+  padding: 12px; overflow-x: auto; margin: 8px 0;
 }
 .ai-text pre code {
   background: transparent; padding: 0;
   font-size: 13px; color: #e0e0e0;
 }
+body.light .ai-text pre { background: #f4f4f4; }
 /* 表格 */
 .ai-text table {
   border-collapse: collapse; width: 100%; margin: 10px 0;
@@ -315,10 +333,16 @@ body.light .logo-text-big {
   margin: 16px 0;
 }
 .message.user .user-bubble {
-  background: #3a3a3a;
-  color: #f5f5f5;
+  background: #EEF2FF;
+  color: #1a1a1a;
   border-radius: 16px;
   padding: 10px 14px;
+}
+body.light .message.user .user-bubble {
+  background: #EEF2FF; color: #1a1a1a;
+}
+body:not(.light) .message.user .user-bubble {
+  background: #2d3a52; color: #e8e8f0;
 }
 .message-content pre {
   background: var(--bg-tertiary); border-radius: 8px; padding: 10px;
@@ -442,27 +466,27 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 /* 平板适配（字体放大 + 消息居中优化） */
 @media (min-width: 768px) {
   .welcome-content { max-width: 680px; }
-  .messages { padding-left: 8%; padding-right: 8%; }
-  .ai-text { font-size: 18px; }
-  .ai-text h1 { font-size: 26px; }
-  .ai-text h2 { font-size: 24px; }
-  .ai-text h3 { font-size: 22px; }
-  .ai-text p { font-size: 18px; }
-  .ai-text li { font-size: 18px; }
-  .ai-text code { font-size: 15px; }
-  .ai-text pre code { font-size: 15px; }
-  .thinking-content { font-size: 16px; }
-  .user-bubble { font-size: 17px; }
+  .messages { padding-left: 24px; padding-right: 24px; }
+  .ai-text { font-size: 17px; }
+  .ai-text h1 { font-size: 22px; }
+  .ai-text h2 { font-size: 20px; }
+  .ai-text h3 { font-size: 18px; }
+  .ai-text p { font-size: 17px; }
+  .ai-text li { font-size: 17px; }
+  .ai-text code { font-size: 14px; }
+  .ai-text pre code { font-size: 14px; }
+  .thinking-content { font-size: 14px; }
+  .user-bubble { font-size: 16px; }
   .welcome-title { font-size: 32px; }
   .welcome-input { font-size: 16px; }
 }
 /* 大屏进一步优化 */
 @media (min-width: 1024px) {
-  .messages { padding-left: 6%; padding-right: 6%; }
-  .ai-text { font-size: 19px; }
-  .ai-text h1 { font-size: 28px; }
-  .ai-text h2 { font-size: 26px; }
-  .ai-text h3 { font-size: 24px; }
+  .messages { padding-left: 40px; padding-right: 40px; }
+  .ai-text { font-size: 18px; }
+  .ai-text h1 { font-size: 24px; }
+  .ai-text h2 { font-size: 22px; }
+  .ai-text h3 { font-size: 20px; }
   .welcome-title { font-size: 36px; }
 }
 /* 横屏适配 */
@@ -511,25 +535,33 @@ button:focus, textarea:focus, input:focus, [tabindex]:focus {
 
 /* 思考过程区域（灰色竖线 + 折叠） */
 .thinking-block {
-  border-left: 3px solid #555555;
-  padding: 4px 0 4px 12px;
-  margin-bottom: 10px;
-  max-width: 85%;
+  border: none;
+  margin: 6px 0 4px 0;
 }
 .thinking-block.collapsed .thinking-content { display: none; }
 .thinking-toggle {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: #888888; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; color: #999; cursor: pointer;
   padding: 2px 0; user-select: none;
 }
-.thinking-icon { font-size: 10px; color: #888888; }
+.thinking-toggle::after {
+  content: '›';
+  font-size: 16px;
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+.thinking-block.collapsed .thinking-toggle::after {
+  transform: rotate(90deg);
+}
+.thinking-icon { font-size: 10px; }
 .thinking-content {
-  font-size: 13px; color: #888888; line-height: 1.6;
+  font-size: 13px; color: #999; line-height: 1.6;
   margin-top: 4px; padding: 4px 0;
   white-space: pre-wrap;
-  background: transparent; border-radius: 0;
+  border-top: 1px solid #e8e8e8;
+  padding-top: 8px;
 }
-body.light .thinking-content { color: #999999; }
+body.light .thinking-content { border-top-color: #e0e0e0; color: #888; }
 /* 浅色模式下思考区域 */
 body.light .thinking-block { border-left-color: #cccccc; }
 body.light .thinking-toggle { color: #999999; }
@@ -613,4 +645,17 @@ textarea:focus, input:focus, select:focus {
   display: inline;
   transition: opacity 0.3s ease, filter 0.3s ease;
   will-change: opacity, filter;
+}
+
+/* 流式逐字动画 */
+.message.ai .ai-text > span {
+  display: inline;
+  opacity: 0;
+  filter: blur(3px);
+  transition: opacity 0.28s ease, filter 0.28s ease;
+  will-change: opacity, filter;
+}
+.message.ai .ai-text > span.visible {
+  opacity: 1;
+  filter: blur(0);
 }

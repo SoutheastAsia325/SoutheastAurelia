@@ -303,25 +303,18 @@ class SoutheastAurelia {
   }
 
   animateStreamingText(textEl, text, onDone) {
-    // 逐字渲染：每个新字先模糊再清晰，配合滚动曲线
+    // 逐字渲染：每个新 span 先加 .visible 类触发 CSS transition（模糊→清晰）
     textEl.innerHTML = '';
     let i = 0;
-    const container = this.messagesEl.parentElement;
     const step = () => {
       if (i >= text.length) { onDone && onDone(); return; }
       const char = text[i];
       const span = document.createElement('span');
       span.textContent = char;
-      span.style.opacity = '0';
-      span.style.filter = 'blur(3px)';
-      span.style.transition = 'opacity 0.25s ease, filter 0.25s ease';
       textEl.appendChild(span);
-      requestAnimationFrame(() => {
-        span.style.opacity = '1';
-        span.style.filter = 'blur(0)';
-      });
+      // 下一帧再添加 visible 以触发 transition
+      requestAnimationFrame(() => { span.classList.add('visible'); });
       i++;
-      // 每 2 个字滚动一次，用带曲线的滚动
       if (i % 2 === 0) this.scrollToBottomSmooth();
       setTimeout(step, 30);
     };
