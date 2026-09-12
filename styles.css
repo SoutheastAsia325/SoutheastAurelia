@@ -553,3 +553,20 @@ button:focus, button:active, .mode-trigger:focus, .mode-trigger:active,
 textarea:focus, input:focus, select:focus {
   outline: none !important;
 }
+
+/* 打字机视觉对齐修复：固定行宽，文字左对齐，光标不引起整块抖动 */
+#welcomeTitle {
+  display: block;
+  min-height: 1.4em;
+  font-variant-ligatures: none;
+}
+#welcomeTitle .tw-text {
+  display: inline-block;
+  text-align: left;
+}
+#welcomeTitle .tw-cursor {
+  display: inline-block;
+  width: 2px;
+  min-width: 2px;
+  font-weight: 300;
+}
