@@ -194,7 +194,7 @@ body.light .logo-text-big {
   flex: 1; background: transparent; border: none; outline: none;
   font-size: 15px; line-height: 1.5; color: var(--text-primary);
   resize: none; min-height: 26px; max-height: 100px; font-family: inherit;
-  padding: 6px 0;
+  padding: 6px 0; text-align: center;
 }
 .welcome-message-input::placeholder { color: var(--text-tertiary); }
 .welcome-send-btn {
@@ -230,12 +230,14 @@ body.light .logo-text-big {
   -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
   padding: 16px;
 }
-.messages { display: flex; flex-direction: column; gap: 14px; }
-.message { display: flex; gap: 0; max-width: 85%; animation: msgIn 0.3s ease;
-  margin-left: 6%; margin-right: 6%;
+.messages {
+  display: flex; flex-direction: column; gap: 14px;
+  padding-left: 12%; padding-right: 12%;
 }
+.message { display: flex; gap: 0; width: 100%; animation: msgIn 0.3s ease; }
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.message.user { align-self: flex-end; flex-direction: row-reverse; margin-right: 4%; }
+.message.user { justify-content: flex-end; flex-direction: row-reverse; }
+.message.user .user-bubble { max-width: 80%; }
 .message-avatar { display: none; }
 .message-content {
   padding: 10px 14px; border-radius: var(--radius-lg);
@@ -254,14 +256,13 @@ body.light .logo-text-big {
 }
 /* AI 消息居中 */
 .message.ai {
-  align-self: center;
+  justify-content: flex-start;
   flex-direction: column;
-  align-items: center;
-  max-width: 80%;
+  align-items: flex-start;
 }
 .message.ai .thinking-block,
 .message.ai .ai-text {
-  max-width: 90%;
+  width: 100%;
   text-align: left;
 }
 /* Markdown 排版优化 */
@@ -362,6 +363,7 @@ body.light .logo-text-big {
   flex: 1; background: transparent; border: none; outline: none;
   font-size: 14px; line-height: 1.5; color: var(--text-primary);
   resize: none; min-height: 24px; max-height: 100px; font-family: inherit;
+  text-align: center;
 }
 .message-input::placeholder { color: var(--text-tertiary); }
 .send-btn {
@@ -440,8 +442,7 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 /* 平板适配（字体放大 + 消息居中优化） */
 @media (min-width: 768px) {
   .welcome-content { max-width: 680px; }
-  .message { max-width: 72%; }
-  .message.ai { max-width: 68%; }
+  .messages { padding-left: 8%; padding-right: 8%; }
   .ai-text { font-size: 18px; }
   .ai-text h1 { font-size: 26px; }
   .ai-text h2 { font-size: 24px; }
@@ -457,8 +458,7 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 }
 /* 大屏进一步优化 */
 @media (min-width: 1024px) {
-  .message { max-width: 62%; }
-  .message.ai { max-width: 58%; }
+  .messages { padding-left: 6%; padding-right: 6%; }
   .ai-text { font-size: 19px; }
   .ai-text h1 { font-size: 28px; }
   .ai-text h2 { font-size: 26px; }
@@ -525,15 +525,15 @@ button:focus, textarea:focus, input:focus, [tabindex]:focus {
 .thinking-icon { font-size: 10px; color: #888888; }
 .thinking-content {
   font-size: 13px; color: #888888; line-height: 1.6;
-  margin-top: 4px; white-space: pre-wrap;
-  max-height: 200px; overflow-y: auto;
-  background: rgba(85, 85, 85, 0.08);
-  border-radius: 8px; padding: 8px 10px;
+  margin-top: 4px; padding: 4px 0;
+  white-space: pre-wrap;
+  background: transparent; border-radius: 0;
 }
+body.light .thinking-content { color: #999999; }
 /* 浅色模式下思考区域 */
 body.light .thinking-block { border-left-color: #cccccc; }
 body.light .thinking-toggle { color: #999999; }
-body.light .thinking-content { color: #888888; background: rgba(0,0,0,0.03); }
+body.light .thinking-content { color: #999999; background: transparent; }
 body.light .thinking-icon { color: #999999; }
 
 /* 彻底消除 WebView 上的蓝色焦点框 */
@@ -593,4 +593,24 @@ textarea:focus, input:focus, select:focus {
 .model-saved-item .model-saved-tag {
   font-size: 10px; color: var(--text-tertiary); background: var(--bg-primary);
   padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+}
+
+/* 会话面板（抽屉内弹出的当前会话总结） */
+.session-summary {
+  margin: 8px 16px; padding: 12px;
+  background: var(--bg-tertiary); border-radius: 12px;
+  font-size: 13px; line-height: 1.6; color: var(--text-secondary);
+  display: none;
+}
+.session-summary.show { display: block; }
+.session-summary .session-title {
+  font-size: 12px; font-weight: 600; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+
+/* 流式逐字浮现：模糊→清晰 */
+.message.ai .ai-text > span {
+  display: inline;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+  will-change: opacity, filter;
 }

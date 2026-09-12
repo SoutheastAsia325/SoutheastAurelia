@@ -19,6 +19,8 @@ class SoutheastAurelia {
     };
     this.currentAgent = 'assistant';
     this.currentMode = 'advanced';
+    this.chatHistory = [];
+    this.inputPlaceholderHidden = false;
 
     this.menuBtn = document.getElementById('menuBtn');
     this.drawer = document.getElementById('drawer');
@@ -70,10 +72,12 @@ class SoutheastAurelia {
     this.drawerClose.addEventListener('click', () => this.closeDrawer());
     this.drawerOverlay.addEventListener('click', () => this.closeDrawer());
     this.newChatBtn.addEventListener('click', () => { this.closeDrawer(); this.startNewChat(); });
+    this.sessionsBtn = document.getElementById('sessionsBtn');
+    this.sessionsBtn.addEventListener('click', () => { this.closeDrawer(); this.summarizeSession(); });
     this.configBtn.addEventListener('click', () => { this.closeDrawer(); this.openConfigModal(); });
     this.aboutBtn.addEventListener('click', () => {
       this.closeDrawer();
-      alert('SoutheastAurelia\n由 CalistaAI 开发并提供相关支持。');
+      alert('SoutheastAurelia v1.1\n由 CalistaAI 开发并提供相关支持。');
     });
 
     // 主题切换（菜单最下方）
@@ -216,16 +220,51 @@ class SoutheastAurelia {
   openDrawer() { this.drawer.classList.add('active'); this.drawerOverlay.classList.add('active'); }
   closeDrawer() { this.drawer.classList.remove('active'); this.drawerOverlay.classList.remove('active'); }
 
+  summarizeSession() {
+    // 把当前会话历史发给 AI 做总结
+    const history = this.chatHistory || [];
+    if (history.length === 0) {
+      alert('当前没有会话内容可总结。');
+      return;
+    }
+    this.welcomeScreen.style.display = 'none';
+    this.chatContainer.style.display = 'flex';
+    const historyText = history.slice(-20)
+      .map(m => (m.role === 'user' ? '用户：' : 'AI：') + m.content)
+      .join('\n');
+    const prompt =
+      '请用 3-5 句话总结以下会话的核心内容和结论，直接给出总结，不要复述指令。\n\n' +
+      historyText;
+    this.thinkingIndicator.classList.add('show');
+    this.callAPI(prompt, []);
+  }
+
   startNewChat() {
     this.messagesEl.innerHTML = '';
+    this.chatHistory = [];
     this.welcomeScreen.style.display = 'flex';
     this.chatContainer.style.display = 'none';
+  }
+
+  updateHistory(userMsg, aiMsg) {
+    this.chatHistory = this.chatHistory || [];
+    this.chatHistory.push({ role: 'user', content: userMsg });
+    this.chatHistory.push({ role: 'assistant', content: aiMsg });
+    // 保留最近 20 轮，避免上下文过长
+    if (this.chatHistory.length > 40) this.chatHistory = this.chatHistory.slice(-40);
   }
 
   handleSend(inputEl) {
     const text = inputEl.value.trim();
     if (!text) return;
     if (!this.config.apiKey) { this.openConfigModal(); return; }
+
+    // 首次发送后：输入框内的提示文字不再显示
+    if (!this.inputPlaceholderHidden) {
+      this.inputPlaceholderHidden = true;
+      this.messageInput.placeholder = '';
+      this.welcomeMessageInput.placeholder = '';
+    }
 
     // 切换到聊天界面
     this.welcomeScreen.style.display = 'none';
@@ -236,12 +275,57 @@ class SoutheastAurelia {
     this.autoResize(this.messageInput);
     this.autoResize(this.welcomeMessageInput);
     this.thinkingIndicator.classList.add('show');
-    this.callAPI(text);
+    this.callAPI(text, this.chatHistory);
   }
 
   autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  scrollToBottomSmooth() {
+    const el = this.messagesEl.parentElement;
+    const target = el.scrollHeight;
+    const start = el.scrollTop;
+    const distance = target - start;
+    if (distance <= 0) return;
+    const duration = Math.min(500, 200 + distance * 0.4);
+    const startTime = performance.now();
+    // 慢-快-慢的三次缓动曲线（easeInOutCubic）
+    const easeInOutCubic = t =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step = now => {
+      const p = Math.min(1, (now - startTime) / duration);
+      el.scrollTop = start + distance * easeInOutCubic(p);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  animateStreamingText(textEl, text, onDone) {
+    // 逐字渲染：每个新字先模糊再清晰，配合滚动曲线
+    textEl.innerHTML = '';
+    let i = 0;
+    const container = this.messagesEl.parentElement;
+    const step = () => {
+      if (i >= text.length) { onDone && onDone(); return; }
+      const char = text[i];
+      const span = document.createElement('span');
+      span.textContent = char;
+      span.style.opacity = '0';
+      span.style.filter = 'blur(3px)';
+      span.style.transition = 'opacity 0.25s ease, filter 0.25s ease';
+      textEl.appendChild(span);
+      requestAnimationFrame(() => {
+        span.style.opacity = '1';
+        span.style.filter = 'blur(0)';
+      });
+      i++;
+      // 每 2 个字滚动一次，用带曲线的滚动
+      if (i % 2 === 0) this.scrollToBottomSmooth();
+      setTimeout(step, 30);
+    };
+    step();
   }
 
   addMessage(role, text, thinking) {
@@ -259,7 +343,7 @@ class SoutheastAurelia {
       div.appendChild(avatar);
       div.appendChild(content);
       this.messagesEl.appendChild(div);
-      this.messagesEl.parentElement.scrollTop = this.messagesEl.parentElement.scrollHeight;
+      this.scrollToBottomSmooth();
       return;
     }
 
@@ -283,10 +367,12 @@ class SoutheastAurelia {
 
     const textEl = document.createElement('div');
     textEl.className = 'message-content ai-text';
-    textEl.innerHTML = this.formatText(text);
     div.appendChild(textEl);
     this.messagesEl.appendChild(div);
-    this.messagesEl.parentElement.scrollTop = this.messagesEl.parentElement.scrollHeight;
+    this.scrollToBottomSmooth();
+    if (text) {
+      this.animateStreamingText(textEl, text);
+    }
   }
 
   formatText(text) {
@@ -300,18 +386,23 @@ class SoutheastAurelia {
     return out;
   }
 
-  async callAPI(userMessage) {
+  async callAPI(userMessage, history) {
     try {
       const agentPrompt = this.agents[this.currentAgent].prompt;
       const fullPrompt = agentPrompt;
 
       // 快速 = 无深度思考直接输出，进阶 = 高思考深度
+      const msgs = [
+        { role: 'system', content: fullPrompt }
+      ];
+      if (history) {
+        for (const m of history) msgs.push({ role: m.role, content: m.content });
+      }
+      msgs.push({ role: 'user', content: userMessage });
+
       const body = {
         model: this.config.model,
-        messages: [
-          { role: 'system', content: fullPrompt },
-          { role: 'user', content: userMessage }
-        ],
+        messages: msgs,
         stream: false
       };
       if (this.currentMode === 'advanced') {
@@ -333,6 +424,7 @@ class SoutheastAurelia {
       const thinking = msg.reasoning_content || msg.reasoning || msg.thinking || '';
       this.thinkingIndicator.classList.remove('show');
       this.addMessage('ai', content, thinking);
+      this.updateHistory(userMessage, content);
     } catch (e) {
       this.thinkingIndicator.classList.remove('show');
       this.addMessage('ai', '请求失败：' + e.message, '');
