@@ -228,7 +228,7 @@ body.light .logo-text-big {
 .messages-container {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
-  padding: 16px;
+  padding: 0 16px;
 }
 .messages {
   display: flex; flex-direction: column; gap: 0;
@@ -365,16 +365,19 @@ body:not(.light) .message.user .user-bubble {
 .thinking-text { font-size: 12px; color: var(--text-secondary); }
 /* 聊天输入栏 */
 .input-area {
+  width: 100%;
   padding: 8px 16px;
   padding-bottom: calc(6px + var(--safe-bottom));
   background: var(--bg-primary);
   z-index: 50;
+  box-sizing: border-box;
 }
 .input-wrapper {
   display: flex; align-items: flex-end; gap: 6px;
   background: var(--bg-secondary); border: 1px solid var(--bg-tertiary);
   border-radius: var(--radius-xl); padding: 6px 6px 6px 10px;
   transition: border-color 0.15s;
+  max-width: 100%; box-sizing: border-box;
 }
 .input-wrapper:focus-within { border-color: var(--accent); }
 .input-attach {
@@ -664,4 +667,41 @@ textarea:focus, input:focus, select:focus {
 .message.ai .ai-text > span.visible {
   opacity: 1;
   filter: blur(0);
+}
+
+/* ===== 平板端/宽屏响应式：内容居中限宽（DeepSeek 风格） ===== */
+@media (min-width: 768px) {
+  /* 消息列表区：限宽 820px 并居中 */
+  .messages-container {
+    padding: 0;
+  }
+  .messages {
+    max-width: 820px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 8px 24px;
+    box-sizing: border-box;
+  }
+  /* 底部输入框：限宽 820px 并居中（与消息列表对齐） */
+  .input-area {
+    padding: 8px 0;
+    padding-bottom: calc(6px + var(--safe-bottom));
+  }
+  .input-wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  /* 欢迎屏同步居中限宽 */
+  .welcome-content {
+    max-width: 820px;
+  }
+  .welcome-input {
+    max-width: 820px;
+  }
+}
+
+/* 大屏（>=1024px）保持 820px，不放大 */
+@media (min-width: 1024px) {
+  .messages { max-width: 820px; }
+  .input-wrapper { max-width: 820px; }
 }
