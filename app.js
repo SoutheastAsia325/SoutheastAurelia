@@ -96,13 +96,15 @@ class SoutheastAurelia {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         const mode = item.dataset.mode;
+        if (mode === 'agent' && !this.config.agentAuthed) {
+          // 未授权：不改变选中态，弹授权框
+          this.openAgentAuthModal();
+          this.modeToggle.classList.remove('open');
+          return;
+        }
         this.currentMode = mode;
         document.querySelectorAll('#modePanel .mode-item').forEach(x => x.classList.remove('active'));
         item.classList.add('active');
-        if (mode === 'agent' && !this.config.agentAuthed) {
-          this.openAgentAuthModal();
-          return;
-        }
         this.updateTriggerLabel();
         this.modeToggle.classList.remove('open');
       });
@@ -190,6 +192,11 @@ class SoutheastAurelia {
       this.agentAuthStatus.textContent = '✅ Agent 最高权限已授予';
       setTimeout(() => {
         this.closeAgentAuthModal();
+        // 授权成功后，把面板中 Agent 项设为选中，当前模式切到 agent
+        this.currentMode = 'agent';
+        document.querySelectorAll('#modePanel .mode-item').forEach(x => x.classList.remove('active'));
+        document.querySelector('#modePanel .mode-item[data-mode="agent"]').classList.add('active');
+        this.updateTriggerLabel();
       }, 600);
       this.fetchModelList();
     } catch (e) {
