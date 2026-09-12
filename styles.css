@@ -185,10 +185,11 @@ body.light .logo-text-big {
 .welcome-input {
   display: flex; align-items: flex-end; gap: 6px;
   width: 100%; margin-top: 24px;
-  background: var(--bg-secondary); border: 1px solid var(--bg-tertiary);
+  background: var(--bg-secondary); border: 1.5px solid rgba(255,255,255,0.85);
   border-radius: var(--radius-xl); padding: 6px 6px 6px 14px;
-  transition: border-color 0.15s;
 }
+body.light .welcome-input { border-color: rgba(0,0,0,0.6); }
+.welcome-input { transition: border-color 0.15s; }
 .welcome-input:focus-within { border-color: var(--accent); }
 .welcome-message-input {
   flex: 1; background: transparent; border: none; outline: none;
@@ -347,10 +348,11 @@ body.light .logo-text-big {
 }
 .input-wrapper {
   display: flex; align-items: flex-end; gap: 6px;
-  background: var(--bg-secondary); border: 1px solid var(--bg-tertiary);
+  background: var(--bg-secondary); border: 1.5px solid rgba(255,255,255,0.85);
   border-radius: var(--radius-xl); padding: 6px 6px 6px 10px;
   transition: border-color 0.15s;
 }
+body.light .input-wrapper { border-color: rgba(0,0,0,0.6); }
 .input-wrapper:focus-within { border-color: var(--accent); }
 .input-attach {
   width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
