@@ -239,7 +239,6 @@ body.light .logo-text-big {
 .messages {
   display: flex; flex-direction: column; gap: 0;
   width: 100%;
-  padding: 8px 12px;
   box-sizing: border-box;
 }
 .message {
@@ -252,6 +251,8 @@ body.light .logo-text-big {
 /* 手机：消息内容区左右各留 0（padding 已在 .messages 上控制对称） */
 .message.user .user-bubble { max-width: 80%; }
 .message.ai .ai-text { max-width: 100%; }
+/* 手机端消息左右内边距（不影响居中） */
+.messages { padding: 8px 16px; }
 .message.user .user-bubble {
   max-width: 78%;
   border-radius: 16px;
@@ -683,29 +684,26 @@ textarea:focus, input:focus, select:focus {
   filter: blur(0);
 }
 
-/* ===== 平板端/宽屏响应式：DeepSeek 风格内容居中（随视口宽度等比缩放） ===== */
-/* 核心方案：用 margin: 0 auto 实现绝对居中，左右留白永远相等 */
+/* ===== 平板端/宽屏响应式：DeepSeek 风格内容居中 ===== */
+/* 核心：用 margin: 0 auto 让内容区在视口中绝对居中，左右留白永远相等 */
 @media (min-width: 768px) {
   .messages {
-    max-width: min(88%, 820px);
+    max-width: min(85%, 820px);
     margin: 0 auto;
-    padding: 10px 20px;
+    padding: 10px;
   }
-  .input-area {
-    padding: 8px 0;
-    padding-bottom: calc(6px + var(--safe-bottom));
-  }
+  .input-area { padding: 8px 0; padding-bottom: calc(6px + var(--safe-bottom)); }
   .input-wrapper {
-    max-width: min(88%, 820px);
+    max-width: min(85%, 820px);
     margin: 0 auto;
   }
-  .welcome-content { max-width: min(88%, 820px); margin: 0 auto; }
-  .welcome-input { max-width: min(88%, 820px); margin: 0 auto; }
+  .welcome-content { max-width: min(85%, 820px); margin: 0 auto; }
+  .welcome-input { max-width: min(85%, 820px); margin: 0 auto; }
 }
-/* 大屏（>=1024px）：进一步收窄到 80% 窗口 + 820px 封顶 */
+/* 大屏（>=1024px） */
 @media (min-width: 1024px) {
-  .messages { max-width: min(80%, 820px); padding: 10px 24px; }
-  .input-wrapper { max-width: min(80%, 820px); }
-  .welcome-content { max-width: min(80%, 820px); }
-  .welcome-input { max-width: min(80%, 820px); }
+  .messages { max-width: min(80%, 820px); padding: 12px; }
+  .input-wrapper { max-width: min(80%, 820px); margin: 0 auto; }
+  .welcome-content { max-width: min(80%, 820px); margin: 0 auto; }
+  .welcome-input { max-width: min(80%, 820px); margin: 0 auto; }
 }
