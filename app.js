@@ -229,7 +229,7 @@ class SoutheastAurelia {
   selectAgent(id) {
     this.currentAgent = id;
     document.querySelectorAll('.agent-item').forEach(el => el.classList.toggle('active', el.dataset.agent === id));
-    this.chatName.textContent = this.agents[id].name;
+    this.chatName.textContent = 'Agent';
     this.agentPanel.classList.remove('open');
     this.modeToggle.classList.remove('open');
     this.updateTriggerLabel();
@@ -239,7 +239,7 @@ class SoutheastAurelia {
     const label =
       this.currentMode === 'quick' ? '快速' :
       this.currentMode === 'advanced' ? '进阶' :
-      this.agents[this.currentAgent].name;
+      'Agent';
     this.triggerLabel.textContent = label;
   }
 
