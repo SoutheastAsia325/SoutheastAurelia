@@ -225,25 +225,33 @@ body.light .logo-text-big {
 .chat-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .chat-status { display: none; }
 /* 消息区 */
+.chat-inner {
+  /* 居中内容框：手机端全宽，平板端随窗口自适应 */
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
 .messages-container {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
-  padding: 0 16px;
+  padding: 0;
 }
 .messages {
   display: flex; flex-direction: column; gap: 0;
   width: 100%;
-  margin: 0 auto;
-  padding: 8px 16px;
+  padding: 8px 12px;
   box-sizing: border-box;
 }
 .message {
   display: flex; gap: 0; width: 100%; animation: msgIn 0.25s ease;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
 }
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .message.user { justify-content: flex-end; }
 .message.ai { justify-content: flex-start; }
+/* 手机：消息内容区左右各留 0（padding 已在 .messages 上控制对称） */
+.message.user .user-bubble { max-width: 80%; }
+.message.ai .ai-text { max-width: 100%; }
 .message.user .user-bubble {
   max-width: 78%;
   border-radius: 16px;
@@ -372,7 +380,7 @@ body:not(.light) .message.user .user-bubble {
 /* 聊天输入栏 */
 .input-area {
   width: 100%;
-  padding: 8px 16px;
+  padding: 8px 12px;
   padding-bottom: calc(6px + var(--safe-bottom));
   background: var(--bg-primary);
   z-index: 50;
@@ -675,27 +683,29 @@ textarea:focus, input:focus, select:focus {
   filter: blur(0);
 }
 
-/* ===== 平板端/宽屏响应式：内容居中限宽（DeepSeek 风格，随窗口自适应） ===== */
-/* 内容宽度 = min(窗口94%, 820px)，窗口越大越贴 820，窗口小则全宽留白；保证左右对称居中 */
+/* ===== 平板端/宽屏响应式：DeepSeek 风格内容居中（随视口宽度等比缩放） ===== */
+/* 核心方案：用 margin: 0 auto 实现绝对居中，左右留白永远相等 */
 @media (min-width: 768px) {
-  .messages-container { padding: 0; }
   .messages {
-    max-width: min(94%, 820px);
-    width: 100%;
+    max-width: min(88%, 820px);
     margin: 0 auto;
-    padding: 8px 20px;
-    box-sizing: border-box;
+    padding: 10px 20px;
   }
-  .input-area { padding: 8px 0; padding-bottom: calc(6px + var(--safe-bottom)); }
+  .input-area {
+    padding: 8px 0;
+    padding-bottom: calc(6px + var(--safe-bottom));
+  }
   .input-wrapper {
-    max-width: min(94%, 820px);
+    max-width: min(88%, 820px);
     margin: 0 auto;
   }
-  .welcome-content { max-width: min(94%, 820px); }
-  .welcome-input { max-width: min(94%, 820px); }
+  .welcome-content { max-width: min(88%, 820px); margin: 0 auto; }
+  .welcome-input { max-width: min(88%, 820px); margin: 0 auto; }
 }
+/* 大屏（>=1024px）：进一步收窄到 80% 窗口 + 820px 封顶 */
 @media (min-width: 1024px) {
-  .messages { max-width: min(90%, 820px); }
-  .input-wrapper { max-width: min(90%, 820px); }
-  .welcome-content { max-width: min(90%, 820px); }
+  .messages { max-width: min(80%, 820px); padding: 10px 24px; }
+  .input-wrapper { max-width: min(80%, 820px); }
+  .welcome-content { max-width: min(80%, 820px); }
+  .welcome-input { max-width: min(80%, 820px); }
 }
