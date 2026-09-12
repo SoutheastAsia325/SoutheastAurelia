@@ -232,11 +232,11 @@ body.light .logo-text-big {
 }
 .messages {
   display: flex; flex-direction: column; gap: 0;
-  padding-left: 16px; padding-right: 16px;
+  max-width: 100%;
   padding-top: 8px; padding-bottom: 8px;
 }
 .message {
-  display: flex; gap: 0; width: 100%; animation: msgIn 0.25s ease;
+  display: flex; gap: 0; max-width: 88%; animation: msgIn 0.25s ease;
   padding-bottom: 6px;
 }
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -271,7 +271,7 @@ body.light .message.ai .message-content { color: #2a2a2a; }
   justify-content: flex-start;
   flex-direction: column;
   align-items: flex-start;
-  width: 100%;
+  max-width: 88%;
 }
 .message.ai .thinking-block,
 .message.ai .ai-text {
@@ -466,7 +466,7 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 /* 平板适配（字体放大 + 消息居中优化） */
 @media (min-width: 768px) {
   .welcome-content { max-width: 680px; }
-  .messages { padding-left: 24px; padding-right: 24px; }
+  .messages { max-width: 100%; }
   .ai-text { font-size: 17px; }
   .ai-text h1 { font-size: 22px; }
   .ai-text h2 { font-size: 20px; }
@@ -482,7 +482,7 @@ body.light .modal-overlay { background: rgba(0,0,0,0.35); }
 }
 /* 大屏进一步优化 */
 @media (min-width: 1024px) {
-  .messages { padding-left: 40px; padding-right: 40px; }
+  .messages { max-width: 100%; }
   .ai-text { font-size: 18px; }
   .ai-text h1 { font-size: 24px; }
   .ai-text h2 { font-size: 22px; }
