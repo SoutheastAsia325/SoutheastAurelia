@@ -37,7 +37,6 @@ class SoutheastAurelia {
     this.messageInput = document.getElementById('messageInput');
     this.sendBtn = document.getElementById('sendBtn');
     this.thinkingIndicator = document.getElementById('thinkingIndicator');
-    this.chatName = document.getElementById('chatName');
     this.configModal = document.getElementById('configModal');
     this.apiBaseUrl = document.getElementById('apiBaseUrl');
     this.apiKey = document.getElementById('apiKey');
@@ -230,7 +229,7 @@ class SoutheastAurelia {
   selectAgent(id) {
     this.currentAgent = id;
     document.querySelectorAll('.agent-item').forEach(el => el.classList.toggle('active', el.dataset.agent === id));
-    this.chatName.textContent = 'Agent';
+
     this.agentPanel.classList.remove('open');
     this.modeToggle.classList.remove('open');
     this.updateTriggerLabel();

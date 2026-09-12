@@ -208,10 +208,7 @@ html, body {
   padding-bottom: var(--safe-bottom);
   background: var(--bg-primary);
 }
-.chat-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px; background: var(--bg-primary);
-}
+.chat-header { display: none; }
 .chat-info { display: flex; align-items: center; gap: 10px; }
 .chat-avatar {
   width: 32px; height: 32px; border-radius: 8px;
