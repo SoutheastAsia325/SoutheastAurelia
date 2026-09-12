@@ -1,0 +1,15 @@
+{
+  "appId": "com.calista.southeastaurelia",
+  "appName": "SoutheastAurelia",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark"
+    }
+  }
+}

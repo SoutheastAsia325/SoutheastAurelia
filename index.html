@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>SoutheastAurelia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-nav" id="topNav">
+    <button class="nav-btn" id="menuBtn" aria-label="菜单">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="nav-center"><div class="mode-toggle" id="modeToggle"><span class="mode-item" data-mode="quick">快速</span><span class="mode-item active" data-mode="advanced">进阶</span></div></div>
+    <button class="nav-btn" id="settingsBtn" aria-label="设置">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <nav class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-logo"><div class="logo-icon">✦</div><span class="logo-text">SoutheastAurelia</span></div>
+      <button class="drawer-close" id="drawerClose" aria-label="关闭"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="drawer-section"><div class="section-title">选择 Agent</div><div class="agent-list" id="agentList"></div></div>
+    <div class="drawer-section"><div class="section-title">功能</div>
+      <button class="drawer-item" id="newChatBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>新对话</span></button>
+      <button class="drawer-item" id="configBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>API 配置</span></button>
+      <button class="drawer-item" id="aboutBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>关于</span></button>
+    </div>
+    <div class="drawer-footer"><div class="footer-info">CalistaAI 开发与支持</div></div>
+  </nav>
+  <div class="welcome-screen" id="welcomeScreen">
+    <div class="welcome-content">
+      <div class="welcome-logo"><div class="logo-circle"><span class="logo-star">✦</span></div></div>
+      <h1 class="welcome-title">你好，我是<br>SoutheastAurelia！</h1>
+      <p class="welcome-subtitle">今天想探索什么？尽管问，带图也行</p>
+      <div class="quick-actions">
+        <button class="action-chip" data-agent="assistant"><span class="chip-icon">💻</span><span>代码助手</span></button>
+        <button class="action-chip" data-agent="writer"><span class="chip-icon">✍️</span><span>写作助手</span></button>
+        <button class="action-chip" data-agent="translator"><span class="chip-icon">🌐</span><span>翻译</span></button>
+        <button class="action-chip" data-agent="summarizer"><span class="chip-icon">📋</span><span>总结归纳</span></button>
+        <button class="action-chip" data-agent="analyst"><span class="chip-icon">📊</span><span>数据分析</span></button>
+      </div>
+    </div>
+  </div>
+  <main class="chat-container" id="chatContainer" style="display: none;">
+    <div class="chat-header">
+      <div class="chat-info"><div class="chat-avatar"><span class="avatar-star">✦</span></div><div class="chat-meta"><div class="chat-name" id="chatName">SoutheastAurelia</div><div class="chat-status" id="chatStatus">在线</div></div></div>
+    </div>
+    <div class="messages-container" id="messagesContainer"><div class="messages" id="messages"></div></div>
+    <div class="thinking-indicator" id="thinkingIndicator" style="display: none;"><div class="thinking-dots"><span></span><span></span><span></span></div><span class="thinking-text">SoutheastAurelia 正在思考...</span></div>
+    <div class="input-area">
+      <div class="input-wrapper">
+        <button class="input-attach" id="attachBtn" aria-label="附件"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+        <textarea class="message-input" id="messageInput" placeholder="尽管问，带图也行..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="发送"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+      <div class="input-footer"><span class="footer-hint">内容由 AI 生成，请注意核实</span></div>
+    </div>
+  </main>
+  <div class="modal-overlay" id="configModal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header"><h3>API 配置</h3><button class="modal-close" id="configModalClose" aria-label="关闭"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="modal-body">
+        <div class="form-group"><label>API Base URL</label><input type="url" id="apiBaseUrl" placeholder="https://api.openai.com/v1"></div>
+        <div class="form-group"><label>API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
+        <div class="form-group"><label>模型名称</label><input type="text" id="modelName" placeholder="gpt-4o"></div>
+        <div class="form-hint"><p>配置将保存在本地，不会上传到任何服务器。</p></div>
+      </div>
+      <div class="modal-footer"><button class="btn-secondary" id="configCancel">取消</button><button class="btn-primary" id="configSave">保存</button></div>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

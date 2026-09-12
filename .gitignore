@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+android/app/build/
+android/.gradle/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Capacitor
+android/gradle/wrapper/gradle-wrapper.jar
+ios/Pods/
+ios/App/Pods/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Icons script
+create_icons.cjs
+create_icons.js

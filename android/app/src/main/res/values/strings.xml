@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SoutheastAurelia</string>
+    <string name="title_activity_main">SoutheastAurelia</string>
+    <string name="package_name">com.calista.southeastaurelia</string>
+    <string name="custom_url_scheme">com.calista.southeastaurelia</string>
+</resources>
