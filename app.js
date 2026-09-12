@@ -1,28 +1,27 @@
-// SoutheastAurelia - Main Application
+/* SoutheastAurelia - AI 聊天应用 */
 class SoutheastAurelia {
   constructor() {
-    this.agents = [
-      { id: 'assistant', name: '代码助手', icon: '💻', desc: '编写、调试和优化代码', prompt: '你是一个专业的编程助手，擅长编写、调试和优化各种编程语言的代码。请详细解释你的思路，并提供清晰的代码示例。' },
-      { id: 'writer', name: '写作助手', icon: '✍️', desc: '撰写文章、邮件和文案', prompt: '你是一个专业的写作助手，擅长撰写各种文体，包括文章、邮件、报告、创意写作等。请根据需求提供高质量的内容。' },
-      { id: 'translator', name: '翻译助手', icon: '🌐', desc: '多语言翻译与本地化', prompt: '你是一个专业的翻译助手，精通多种语言，能够提供准确、自然的翻译。请根据上下文选择合适的表达方式。' },
-      { id: 'summarizer', name: '总结归纳', icon: '📋', desc: '提取要点，生成摘要', prompt: '你是一个擅长总结归纳的助手。请仔细阅读内容，提取关键信息，生成简洁明了的摘要，突出核心要点。' },
-      { id: 'analyst', name: '数据分析', icon: '📊', desc: '分析数据，洞察趋势', prompt: '你是一个数据分析专家，能够帮助理解数据趋势、模式和洞察。请提供清晰的数据分析和建议。' },
-      { id: 'creative', name: '创意顾问', icon: '🎨', desc: '激发灵感，头脑风暴', prompt: '你是一个创意顾问，擅长头脑风暴和创新思维。请提供新颖的想法和解决方案，帮助用户突破思维定式。' },
-      { id: 'researcher', name: '研究助手', icon: '🔍', desc: '调研分析，信息整合', prompt: '你是一个研究助手，擅长收集、整理和分析信息。请提供全面、准确的研究结果和相关见解。' },
-    ];
-    this.currentAgent = this.agents[0];
-    this.messageHistory = [];
-    this.isThinking = false;
-    this.config = this.loadConfig();
-    this.init();
-  }
-  init() { this.cacheElements(); this.bindEvents(); this.renderAgents(); this.checkConfig(); }
-  cacheElements() {
+    this.agents = {
+      assistant: { id: 'assistant', name: '代码助手', desc: '编程问题与代码分析', icon: '💻', prompt: '你是一个专业的编程助手，擅长解答编程问题和提供代码建议。' },
+      writer: { id: 'writer', name: '写作助手', desc: '文章撰写与润色', icon: '✍️', prompt: '你是一个专业的写作助手，擅长文章撰写与润色。' },
+      translator: { id: 'translator', name: '翻译', desc: '多语言翻译', icon: '🌐', prompt: '你是一个专业的翻译助手，擅长多语言翻译。' },
+      summarizer: { id: 'summarizer', name: '总结归纳', desc: '长文本摘要提炼', icon: '📋', prompt: '你是一个总结归纳助手，擅长从长文本中提取关键信息。' },
+      analyst: { id: 'analyst', name: '数据分析', desc: '数据解读与洞察', icon: '📊', prompt: '你是一个数据分析助手，擅长数据解读与洞察。' },
+      creative: { id: 'creative', name: '创意生成', desc: '脑洞与灵感激发', icon: '💡', prompt: '你是一个创意生成助手，擅长脑洞与灵感激发。' },
+      researcher: { id: 'researcher', name: '研究助手', desc: '深度研究与调研', icon: '🔍', prompt: '你是一个研究助手，擅长深度研究与调研。' }
+    };
+    this.config = {
+      apiKey: '',
+      baseUrl: 'https://api.openai.com/v1',
+      model: 'gpt-4o'
+    };
+    this.currentAgent = 'assistant';
+    this.currentMode = 'advanced';
+
     this.menuBtn = document.getElementById('menuBtn');
     this.drawer = document.getElementById('drawer');
     this.drawerOverlay = document.getElementById('drawerOverlay');
     this.drawerClose = document.getElementById('drawerClose');
-    this.agentList = document.getElementById('agentList');
     this.newChatBtn = document.getElementById('newChatBtn');
     this.configBtn = document.getElementById('configBtn');
     this.aboutBtn = document.getElementById('aboutBtn');
@@ -41,64 +40,220 @@ class SoutheastAurelia {
     this.configModalClose = document.getElementById('configModalClose');
     this.configCancel = document.getElementById('configCancel');
     this.configSave = document.getElementById('configSave');
+    this.settingsBtn = document.getElementById('settingsBtn');
+
+    // 新增：模式切换器与 Agent 面板
     this.modeToggle = document.getElementById('modeToggle');
+    this.modeTrigger = document.getElementById('modeTrigger');
+    this.triggerLabel = document.getElementById('triggerLabel');
+    this.agentPanel = document.getElementById('agentPanel');
+
+    this.bindEvents();
+    this.loadConfig();
+    this.renderAgentPanel();
+    this.updateTriggerLabel();
   }
+
   bindEvents() {
+    // 抽屉
     this.menuBtn.addEventListener('click', () => this.openDrawer());
     this.drawerClose.addEventListener('click', () => this.closeDrawer());
     this.drawerOverlay.addEventListener('click', () => this.closeDrawer());
-    document.querySelectorAll('.action-chip').forEach(chip => {
-      chip.addEventListener('click', (e) => {
-        const agent = this.agents.find(a => a.id === e.currentTarget.dataset.agent);
-        if (agent) { this.selectAgent(agent); this.startChat(agent.prompt); }
+    this.newChatBtn.addEventListener('click', () => { this.closeDrawer(); this.startNewChat(); });
+    this.configBtn.addEventListener('click', () => { this.closeDrawer(); this.openConfigModal(); });
+    this.aboutBtn.addEventListener('click', () => {
+      this.closeDrawer();
+      alert('SoutheastAurelia\n由 CalistaAI 开发并提供相关支持。');
+    });
+
+    // 设置按钮（顶栏右侧）直接打开配置
+    this.settingsBtn.addEventListener('click', () => this.openConfigModal());
+
+    // 模式切换器：点击 trigger 展开/收起 3 个 tab
+    this.modeTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = this.modeToggle.classList.toggle('open');
+      // 展开模式切换器时，若选中 agent 则同时显示 agent 面板
+      if (isOpen && this.currentMode === 'agent') this.showAgentPanel();
+    });
+
+    // 3 个 tab 点击
+    document.querySelectorAll('#modePanel .mode-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const mode = item.dataset.mode;
+        this.currentMode = mode;
+        document.querySelectorAll('#modePanel .mode-item').forEach(x => x.classList.remove('active'));
+        item.classList.add('active');
+        if (mode === 'agent') {
+          this.showAgentPanel();
+        } else {
+          this.agentPanel.classList.remove('open');
+          this.updateTriggerLabel();
+          this.modeToggle.classList.remove('open');
+        }
       });
     });
+
+    // 点击其他区域关闭浮层
+    document.addEventListener('click', () => {
+      this.modeToggle.classList.remove('open');
+      this.agentPanel.classList.remove('open');
+    });
+
+    // 输入
     this.messageInput.addEventListener('input', () => this.autoResize());
-    this.messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
-    this.sendBtn.addEventListener('click', () => this.sendMessage());
-    this.newChatBtn.addEventListener('click', () => this.newChat());
-    this.configBtn.addEventListener('click', () => this.openConfig());
-    this.aboutBtn.addEventListener('click', () => this.showAbout());
-    this.configModalClose.addEventListener('click', () => this.closeConfig());
-    this.configCancel.addEventListener('click', () => this.closeConfig());
+    this.messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.handleSend(); }
+    });
+    this.sendBtn.addEventListener('click', () => this.handleSend());
+
+    // 配置弹窗
+    this.configModalClose.addEventListener('click', () => this.closeConfigModal());
+    this.configCancel.addEventListener('click', () => this.closeConfigModal());
     this.configSave.addEventListener('click', () => this.saveConfig());
-    this.configModal.addEventListener('click', (e) => { if (e.target === this.configModal) this.closeConfig(); });
-    this.modeToggle.addEventListener('click', (e) => { if (e.target.classList.contains('mode-item')) this.setMode(e.target.dataset.mode); });
   }
-  loadConfig() { try { const s = localStorage.getItem('southeast_aurelia_config'); return s ? JSON.parse(s) : { baseUrl: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4o' }; } catch { return { baseUrl: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4o' }; } }
-  saveConfigToStorage() { localStorage.setItem('southeast_aurelia_config', JSON.stringify(this.config)); }
-  checkConfig() { if (!this.config.apiKey) setTimeout(() => this.openConfig(), 500); }
-  renderAgents() {
-    this.agentList.innerHTML = this.agents.map(a => '<button class="agent-item ' + (a.id === this.currentAgent.id ? 'active' : '') + '" data-agent="' + a.id + '"><div class="agent-icon">' + a.icon + '</div><div class="agent-info"><div class="agent-name">' + a.name + '</div><div class="agent-desc">' + a.desc + '</div></div></button>').join('');
-    this.agentList.querySelectorAll('.agent-item').forEach(item => { item.addEventListener('click', () => { const a = this.agents.find(x => x.id === item.dataset.agent); if (a) { this.selectAgent(a); this.closeDrawer(); } }); });
+
+  renderAgentPanel() {
+    this.agentPanel.innerHTML = '';
+    Object.values(this.agents).forEach(agent => {
+      const btn = document.createElement('button');
+      btn.className = 'agent-item' + (agent.id === this.currentAgent ? ' active' : '');
+      btn.dataset.agent = agent.id;
+      btn.innerHTML =
+        '<div class="agent-icon">' + agent.icon + '</div>' +
+        '<div class="agent-info"><div class="agent-name">' + agent.name + '</div><div class="agent-desc">' + agent.desc + '</div></div>';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.selectAgent(agent.id);
+      });
+      this.agentPanel.appendChild(btn);
+    });
   }
-  selectAgent(a) { this.currentAgent = a; this.renderAgents(); this.chatName.textContent = a.name; }
-  startChat(p) { this.welcomeScreen.style.display = 'none'; this.chatContainer.style.display = 'flex'; this.messagesEl.innerHTML = ''; this.messageHistory = []; this.addMessage('ai', '你好！我是' + this.currentAgent.name + '，' + this.currentAgent.desc + '。有什么可以帮助你的？'); }
-  newChat() { this.messageHistory = []; this.messagesEl.innerHTML = ''; this.closeDrawer(); this.welcomeScreen.style.display = 'flex'; this.chatContainer.style.display = 'none'; }
-  async sendMessage() { const t = this.messageInput.value.trim(); if (!t || this.isThinking) return; this.addMessage('user', t); this.messageInput.value = ''; this.autoResize(); await this.getAIResponse(t); }
-  async getAIResponse(msg) { this.isThinking = true; this.showThinking(true); this.sendBtn.disabled = true; try { const r = await this.callAPI(msg); this.showThinking(false); this.addMessage('ai', r || '抱歉，我没有收到有效的回复。请检查 API 配置或稍后重试。'); } catch (e) { this.showThinking(false); console.error('API Error:', e); this.addMessage('ai', '出错了：' + (e.message || '未知错误') + '。请检查网络连接或 API 配置。'); } finally { this.isThinking = false; this.sendBtn.disabled = false; } }
-  async callAPI(msg) { const { baseUrl, apiKey, model } = this.config; if (!apiKey) throw new Error('请先配置 API Key'); const messages = [{ role: 'system', content: this.currentAgent.prompt }, ...this.messageHistory.slice(-10).map(m => ({ role: m.type === 'user' ? 'user' : 'assistant', content: m.content })), { role: 'user', content: msg }]; const response = await fetch(baseUrl + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }, body: JSON.stringify({ model, messages, stream: false, max_tokens: 2000 }) }); if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.error?.message || 'API 请求失败 (' + response.status + ')'); } const data = await response.json(); return data.choices?.[0]?.message?.content; }
-  addMessage(type, content) {
-    const el = document.createElement('div');
-    el.className = 'message ' + type;
-    const avatar = type === 'ai' ? '<span class="message-avatar">✦</span>' : '<span class="message-avatar">👤</span>';
-    let rendered = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/`([^`]+)`/g,'<code>$1</code>')
-      .replace(/\*\*([^\*]+)\*\*/g,'<strong>$1</strong>')
-      .replace(/\n/g,'<br>');
-    el.innerHTML = avatar + '<div class="message-content">' + rendered + '</div>';
-    this.messagesEl.appendChild(el);
-    this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
-    this.messageHistory.push({ type, content });
+
+  showAgentPanel() {
+    this.agentPanel.classList.add('open');
   }
-  showThinking(show) { this.thinkingIndicator.style.display = show ? 'flex' : 'none'; if (show) { this.messagesEl.appendChild(this.thinkingIndicator); this.thinkingIndicator.scrollIntoView({ behavior: 'smooth' }); } }
+
+  selectAgent(id) {
+    this.currentAgent = id;
+    document.querySelectorAll('.agent-item').forEach(el => el.classList.toggle('active', el.dataset.agent === id));
+    this.chatName.textContent = this.agents[id].name;
+    this.agentPanel.classList.remove('open');
+    this.modeToggle.classList.remove('open');
+    this.updateTriggerLabel();
+  }
+
+  updateTriggerLabel() {
+    const label =
+      this.currentMode === 'quick' ? '快速' :
+      this.currentMode === 'advanced' ? '进阶' :
+      this.agents[this.currentAgent].name;
+    this.triggerLabel.textContent = label;
+  }
+
   openDrawer() { this.drawer.classList.add('active'); this.drawerOverlay.classList.add('active'); }
   closeDrawer() { this.drawer.classList.remove('active'); this.drawerOverlay.classList.remove('active'); }
-  openConfig() { this.apiBaseUrl.value = this.config.baseUrl; this.apiKey.value = this.config.apiKey; this.modelName.value = this.config.model; this.configModal.style.display = 'flex'; }
-  closeConfig() { this.configModal.style.display = 'none'; }
-  saveConfig() { this.config.baseUrl = this.apiBaseUrl.value.trim() || 'https://api.openai.com/v1'; this.config.apiKey = this.apiKey.value.trim(); this.config.model = this.modelName.value.trim() || 'gpt-4o'; this.saveConfigToStorage(); this.closeConfig(); }
-  showAbout() { alert('SoutheastAurelia\n版本: 1.0.0\n\n由 CalistaAI 开发并提供相关支持'); this.closeDrawer(); }
-  setMode(mode) { document.querySelectorAll('.mode-item').forEach(item => { item.classList.toggle('active', item.dataset.mode === mode); }); }
-  autoResize() { this.messageInput.style.height = 'auto'; this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px'; }
+
+  startNewChat() {
+    this.messagesEl.innerHTML = '';
+    this.welcomeScreen.style.display = 'flex';
+    this.chatContainer.style.display = 'none';
+  }
+
+  handleSend() {
+    const text = this.messageInput.value.trim();
+    if (!text) return;
+    if (!this.config.apiKey) { this.openConfigModal(); return; }
+
+    this.welcomeScreen.style.display = 'none';
+    this.chatContainer.style.display = 'flex';
+    this.addMessage('user', text);
+    this.messageInput.value = '';
+    this.autoResize();
+    this.thinkingIndicator.classList.add('show');
+    this.callAPI(text);
+  }
+
+  autoResize() {
+    this.messageInput.style.height = 'auto';
+    this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 100) + 'px';
+  }
+
+  addMessage(role, text) {
+    const div = document.createElement('div');
+    div.className = 'message ' + role;
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = role === 'ai' ? '✦' : '👤';
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.innerHTML = this.formatText(text);
+    div.appendChild(avatar);
+    div.appendChild(content);
+    this.messagesEl.appendChild(div);
+    this.messagesEl.parentElement.scrollTop = this.messagesEl.parentElement.scrollHeight;
+  }
+
+  formatText(text) {
+    const esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let out = esc
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+    out = out.replace(/\n```(\w+)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    out = out.replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    return out;
+  }
+
+  async callAPI(userMessage) {
+    try {
+      const fullPrompt = this.agents[this.currentAgent].prompt + '\n\n' + userMessage;
+      const res = await fetch(this.config.baseUrl + '/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + this.config.apiKey
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          messages: [{ role: 'system', content: fullPrompt }, { role: 'user', content: userMessage }],
+          stream: false
+        })
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      this.thinkingIndicator.classList.remove('show');
+      this.addMessage('ai', data.choices[0].message.content);
+    } catch (e) {
+      this.thinkingIndicator.classList.remove('show');
+      this.addMessage('ai', '请求失败：' + e.message);
+    }
+  }
+
+  openConfigModal() {
+    this.apiBaseUrl.value = this.config.baseUrl;
+    this.apiKey.value = this.config.apiKey;
+    this.modelName.value = this.config.model;
+    this.configModal.style.display = 'flex';
+  }
+  closeConfigModal() { this.configModal.style.display = 'none'; }
+  saveConfig() {
+    this.config.baseUrl = this.apiBaseUrl.value.trim() || 'https://api.openai.com/v1';
+    this.config.apiKey = this.apiKey.value.trim();
+    this.config.model = this.modelName.value.trim() || 'gpt-4o';
+    this.saveConfigToStorage();
+    this.closeConfigModal();
+  }
+
+  loadConfig() {
+    try {
+      const saved = localStorage.getItem('southeast_aurelia_config');
+      if (saved) this.config = JSON.parse(saved);
+    } catch (e) {}
+  }
+  saveConfigToStorage() {
+    localStorage.setItem('southeast_aurelia_config', JSON.stringify(this.config));
+  }
 }
-document.addEventListener('DOMContentLoaded', () => { window.app = new SoutheastAurelia(); });
+
+document.addEventListener('DOMContentLoaded', () => { new SoutheastAurelia(); });
