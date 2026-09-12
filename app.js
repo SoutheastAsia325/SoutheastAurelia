@@ -88,7 +88,7 @@ class SoutheastAurelia {
     // 模式切换器
     this.modeTrigger.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.modeToggle.classList.remove('open');
+      this.modeToggle.classList.toggle('open');
     });
 
     document.querySelectorAll('#modePanel .mode-item').forEach(item => {

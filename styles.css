@@ -45,7 +45,7 @@ html, body {
   height: var(--nav-height);
   padding-top: var(--safe-top);
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--bg-primary); border-bottom: 1px solid var(--bg-tertiary);
+  background: var(--bg-primary);
   z-index: 100; padding-left: 8px; padding-right: 8px;
 }
 .nav-left { display: flex; align-items: center; gap: 8px; flex: 1; position: relative; }
@@ -182,7 +182,7 @@ body.light .logo-text-big {
 /* 欢迎屏聊天输入区 */
 .welcome-input {
   display: flex; align-items: flex-end; gap: 6px;
-  width: 100%;
+  width: 100%; margin-top: 24px;
   background: var(--bg-secondary); border: 1px solid var(--bg-tertiary);
   border-radius: var(--radius-xl); padding: 6px 6px 6px 14px;
   transition: border-color 0.15s;
@@ -531,3 +531,25 @@ body.light .thinking-block { border-left-color: #cccccc; }
 body.light .thinking-toggle { color: #999999; }
 body.light .thinking-content { color: #888888; background: rgba(0,0,0,0.03); }
 body.light .thinking-icon { color: #999999; }
+
+/* 彻底消除 WebView 上的蓝色焦点框 */
+* { -webkit-tap-highlight-color: transparent; }
+button, .mode-trigger, .drawer-item, .agent-item, .mode-item,
+.btn-primary, .btn-secondary, .nav-btn, .input-attach,
+.send-btn, .welcome-send-btn, .drawer-close, .modal-close,
+.mode-trigger, .theme-toggle {
+  -webkit-user-select: none; user-select: none;
+}
+button:focus, button:active, .mode-trigger:focus, .mode-trigger:active,
+.drawer-item:focus, .drawer-item:active, .nav-btn:focus, .nav-btn:active,
+.send-btn:focus, .send-btn:active, .welcome-send-btn:focus, .welcome-send-btn:active,
+.input-attach:focus, .input-attach:active, .mode-item:focus, .mode-item:active,
+.agent-item:focus, .agent-item:active, .btn-primary:focus, .btn-primary:active,
+.btn-secondary:focus, .btn-secondary:active, .drawer-close:focus, .drawer-close:active,
+.modal-close:focus, .modal-close:active, .theme-toggle:focus, .theme-toggle:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+textarea:focus, input:focus, select:focus {
+  outline: none !important;
+}
