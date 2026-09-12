@@ -339,10 +339,10 @@ body.light .ai-text pre { background: #f4f4f4; }
   padding: 10px 14px;
 }
 body.light .message.user .user-bubble {
-  background: #EEF2FF; color: #1a1a1a;
+  background: #D5E2F7; color: #1a1a2e;
 }
 body:not(.light) .message.user .user-bubble {
-  background: #2d3a52; color: #e8e8f0;
+  background: #3B4A61; color: #e0e0f0;
 }
 .message-content pre {
   background: var(--bg-tertiary); border-radius: 8px; padding: 10px;
@@ -540,28 +540,34 @@ button:focus, textarea:focus, input:focus, [tabindex]:focus {
 }
 .thinking-block.collapsed .thinking-content { display: none; }
 .thinking-toggle {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 13px; color: #999; cursor: pointer;
-  padding: 2px 0; user-select: none;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: #666; cursor: pointer;
+  padding: 8px 0 4px 0; user-select: none;
+  border-top: 1px solid #333;
+  margin-top: 4px;
+}
+.thinking-toggle::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #666;
 }
 .thinking-toggle::after {
   content: '›';
-  font-size: 16px;
+  font-size: 18px;
   margin-left: auto;
   transition: transform 0.2s;
 }
 .thinking-block.collapsed .thinking-toggle::after {
   transform: rotate(90deg);
 }
-.thinking-icon { font-size: 10px; }
+.thinking-icon { display: none; }
 .thinking-content {
-  font-size: 13px; color: #999; line-height: 1.6;
-  margin-top: 4px; padding: 4px 0;
+  font-size: 13px; color: #888; line-height: 1.7;
+  margin-top: 4px; padding: 4px 0 8px 0;
   white-space: pre-wrap;
-  border-top: 1px solid #e8e8e8;
-  padding-top: 8px;
 }
-body.light .thinking-content { border-top-color: #e0e0e0; color: #888; }
+body.light .thinking-content { color: #666; }
 /* 浅色模式下思考区域 */
 body.light .thinking-block { border-left-color: #cccccc; }
 body.light .thinking-toggle { color: #999999; }
