@@ -13,7 +13,9 @@ class SoutheastAurelia {
     this.config = {
       apiKey: '',
       baseUrl: 'https://api.openai.com/v1',
-      model: 'gpt-4o'
+      model: 'gpt-4o',
+      theme: 'dark',
+      agentAuthed: false
     };
     this.currentAgent = 'assistant';
     this.currentMode = 'advanced';
@@ -25,7 +27,11 @@ class SoutheastAurelia {
     this.newChatBtn = document.getElementById('newChatBtn');
     this.configBtn = document.getElementById('configBtn');
     this.aboutBtn = document.getElementById('aboutBtn');
+    this.themeToggleBtn = document.getElementById('themeToggleBtn');
+    this.themeToggleLabel = document.getElementById('themeToggleLabel');
     this.welcomeScreen = document.getElementById('welcomeScreen');
+    this.welcomeMessageInput = document.getElementById('welcomeMessageInput');
+    this.welcomeSendBtn = document.getElementById('welcomeSendBtn');
     this.chatContainer = document.getElementById('chatContainer');
     this.messagesEl = document.getElementById('messages');
     this.messageInput = document.getElementById('messageInput');
@@ -41,17 +47,23 @@ class SoutheastAurelia {
     this.configCancel = document.getElementById('configCancel');
     this.configSave = document.getElementById('configSave');
     this.settingsBtn = document.getElementById('settingsBtn');
-
-    // 新增：模式切换器与 Agent 面板
     this.modeToggle = document.getElementById('modeToggle');
     this.modeTrigger = document.getElementById('modeTrigger');
     this.triggerLabel = document.getElementById('triggerLabel');
     this.agentPanel = document.getElementById('agentPanel');
+    // Agent 授权弹窗
+    this.agentAuthModal = document.getElementById('agentAuthModal');
+    this.agentAuthStatus = document.getElementById('agentAuthStatus');
+    this.agentAuthClose = document.getElementById('agentAuthClose');
+    this.agentAuthCancel = document.getElementById('agentAuthCancel');
+    this.agentAuthGrant = document.getElementById('agentAuthGrant');
 
     this.bindEvents();
     this.loadConfig();
+    this.applyTheme(this.config.theme || 'dark');
     this.renderAgentPanel();
     this.updateTriggerLabel();
+    this.requestStoragePermission();
   }
 
   bindEvents() {
@@ -66,25 +78,36 @@ class SoutheastAurelia {
       alert('SoutheastAurelia\n由 CalistaAI 开发并提供相关支持。');
     });
 
-    // 设置按钮（顶栏右侧）直接打开配置
+    // 主题切换（菜单最下方）
+    this.themeToggleBtn.addEventListener('click', () => {
+      const next = this.config.theme === 'dark' ? 'light' : 'dark';
+      this.config.theme = next;
+      this.saveConfigToStorage();
+      this.applyTheme(next);
+    });
+
     this.settingsBtn.addEventListener('click', () => this.openConfigModal());
 
-    // 模式切换器：点击 trigger 展开/收起 3 个 tab
+    // 模式切换器
     this.modeTrigger.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = this.modeToggle.classList.toggle('open');
-      // 展开模式切换器时，若选中 agent 则同时显示 agent 面板
       if (isOpen && this.currentMode === 'agent') this.showAgentPanel();
     });
 
-    // 3 个 tab 点击
     document.querySelectorAll('#modePanel .mode-item').forEach(item => {
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
         const mode = item.dataset.mode;
         this.currentMode = mode;
         document.querySelectorAll('#modePanel .mode-item').forEach(x => x.classList.remove('active'));
         item.classList.add('active');
         if (mode === 'agent') {
+          // Agent 模式：先检查是否已授权
+          if (!this.config.agentAuthed) {
+            this.openAgentAuthModal();
+            return;
+          }
           this.showAgentPanel();
         } else {
           this.agentPanel.classList.remove('open');
@@ -100,17 +123,88 @@ class SoutheastAurelia {
       this.agentPanel.classList.remove('open');
     });
 
-    // 输入
-    this.messageInput.addEventListener('input', () => this.autoResize());
+    // 聊天输入（普通界面）
+    this.messageInput.addEventListener('input', () => this.autoResize(this.messageInput));
     this.messageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.handleSend(); }
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.handleSend(this.messageInput); }
     });
-    this.sendBtn.addEventListener('click', () => this.handleSend());
+    this.sendBtn.addEventListener('click', () => this.handleSend(this.messageInput));
+
+    // 欢迎屏输入
+    this.welcomeMessageInput.addEventListener('input', () => this.autoResize(this.welcomeMessageInput));
+    this.welcomeMessageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.handleSend(this.welcomeMessageInput); }
+    });
+    this.welcomeSendBtn.addEventListener('click', () => this.handleSend(this.welcomeMessageInput));
 
     // 配置弹窗
     this.configModalClose.addEventListener('click', () => this.closeConfigModal());
     this.configCancel.addEventListener('click', () => this.closeConfigModal());
     this.configSave.addEventListener('click', () => this.saveConfig());
+
+    // Agent 授权弹窗
+    this.agentAuthClose.addEventListener('click', () => this.closeAgentAuthModal());
+    this.agentAuthCancel.addEventListener('click', () => this.closeAgentAuthModal());
+    this.agentAuthGrant.addEventListener('click', () => this.grantAgentAuth());
+  }
+
+  // 应用主题
+  applyTheme(theme) {
+    if (theme === 'light') {
+      document.body.classList.add('light');
+      this.themeToggleLabel.textContent = '浅色模式';
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f8f9fa');
+    } else {
+      document.body.classList.remove('light');
+      this.themeToggleLabel.textContent = '深色模式';
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+    }
+  }
+
+  // 请求本地存储权限（Agent 最高权限）
+  async requestStoragePermission() {
+    try {
+      const Filesystem = (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem);
+      if (Filesystem) {
+        await Filesystem.getStatus({});
+        this.config.storageGranted = true;
+      }
+    } catch (e) {
+      this.config.storageGranted = false;
+    }
+  }
+
+  // Agent 授权弹窗
+  openAgentAuthModal() {
+    this.agentAuthStatus.className = 'form-hint';
+    this.agentAuthStatus.textContent = this.config.storageGranted
+      ? '本地存储权限已就绪，点击授权即可启用 Agent 最高权限。'
+      : '正在检测本地存储权限...';
+    this.agentAuthModal.style.display = 'flex';
+  }
+  closeAgentAuthModal() { this.agentAuthModal.style.display = 'none'; }
+  async grantAgentAuth() {
+    this.agentAuthStatus.textContent = '正在授予最高权限...';
+    try {
+      const Filesystem = (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem);
+      if (Filesystem) {
+        await Filesystem.writeDirectory({
+          dir: Filesystem.Defs.Directory.Data,
+          path: '.aurelia_agent',
+          recursive: true
+        });
+      }
+      this.config.agentAuthed = true;
+      this.saveConfigToStorage();
+      this.agentAuthStatus.className = 'form-hint ok';
+      this.agentAuthStatus.textContent = '✅ Agent 最高权限已授予';
+      setTimeout(() => {
+        this.closeAgentAuthModal();
+        this.showAgentPanel();
+      }, 600);
+    } catch (e) {
+      this.agentAuthStatus.textContent = '授权失败：' + e.message;
+    }
   }
 
   renderAgentPanel() {
@@ -119,9 +213,10 @@ class SoutheastAurelia {
       const btn = document.createElement('button');
       btn.className = 'agent-item' + (agent.id === this.currentAgent ? ' active' : '');
       btn.dataset.agent = agent.id;
+      const lock = this.config.agentAuthed ? '' : '<span class="agent-lock">🔒</span>';
       btn.innerHTML =
         '<div class="agent-icon">' + agent.icon + '</div>' +
-        '<div class="agent-info"><div class="agent-name">' + agent.name + '</div><div class="agent-desc">' + agent.desc + '</div></div>';
+        '<div class="agent-info"><div class="agent-name">' + agent.name + '</div><div class="agent-desc">' + agent.desc + '</div></div>' + lock;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.selectAgent(agent.id);
@@ -130,9 +225,7 @@ class SoutheastAurelia {
     });
   }
 
-  showAgentPanel() {
-    this.agentPanel.classList.add('open');
-  }
+  showAgentPanel() { this.agentPanel.classList.add('open'); }
 
   selectAgent(id) {
     this.currentAgent = id;
@@ -160,23 +253,26 @@ class SoutheastAurelia {
     this.chatContainer.style.display = 'none';
   }
 
-  handleSend() {
-    const text = this.messageInput.value.trim();
+  handleSend(inputEl) {
+    const text = inputEl.value.trim();
     if (!text) return;
     if (!this.config.apiKey) { this.openConfigModal(); return; }
 
+    // 切换到聊天界面
     this.welcomeScreen.style.display = 'none';
     this.chatContainer.style.display = 'flex';
     this.addMessage('user', text);
     this.messageInput.value = '';
-    this.autoResize();
+    this.welcomeMessageInput.value = '';
+    this.autoResize(this.messageInput);
+    this.autoResize(this.welcomeMessageInput);
     this.thinkingIndicator.classList.add('show');
     this.callAPI(text);
   }
 
-  autoResize() {
-    this.messageInput.style.height = 'auto';
-    this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 100) + 'px';
+  autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
   }
 
   addMessage(role, text) {
@@ -184,7 +280,7 @@ class SoutheastAurelia {
     div.className = 'message ' + role;
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.textContent = role === 'ai' ? '✦' : '👤';
+    avatar.textContent = role === 'ai' ? 'SA' : '我';
     const content = document.createElement('div');
     content.className = 'message-content';
     content.innerHTML = this.formatText(text);
@@ -248,7 +344,7 @@ class SoutheastAurelia {
   loadConfig() {
     try {
       const saved = localStorage.getItem('southeast_aurelia_config');
-      if (saved) this.config = JSON.parse(saved);
+      if (saved) this.config = Object.assign(this.config, JSON.parse(saved));
     } catch (e) {}
   }
   saveConfigToStorage() {
