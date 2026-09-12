@@ -393,3 +393,16 @@ button:focus, textarea:focus, input:focus, [tabindex]:focus {
   box-shadow: none;
 }
 ::-webkit-focus-ring { box-shadow: none; }
+
+/* 打字机效果 */
+.tw-cursor {
+  display: inline-block; margin-left: 2px;
+  animation: twBlink 1s step-end infinite;
+  color: var(--text-primary);
+}
+@keyframes twBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.welcome-title { white-space: normal; }
+@media (min-width: 768px) {
+  .welcome-title { white-space: nowrap; }
+  .welcome-content { max-width: 600px; }
+}
