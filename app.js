@@ -38,7 +38,6 @@ class SoutheastAurelia {
     this.sendBtn = document.getElementById('sendBtn');
     this.thinkingIndicator = document.getElementById('thinkingIndicator');
     this.chatName = document.getElementById('chatName');
-    this.chatStatus = document.getElementById('chatStatus');
     this.configModal = document.getElementById('configModal');
     this.apiBaseUrl = document.getElementById('apiBaseUrl');
     this.apiKey = document.getElementById('apiKey');
