@@ -41,6 +41,7 @@ class SoutheastAurelia {
     this.apiBaseUrl = document.getElementById('apiBaseUrl');
     this.apiKey = document.getElementById('apiKey');
     this.modelName = document.getElementById('modelName');
+    this.modelSavedList = document.getElementById('modelSavedList');
     this.configModalClose = document.getElementById('configModalClose');
     this.configCancel = document.getElementById('configCancel');
     this.configSave = document.getElementById('configSave');
@@ -334,7 +335,9 @@ class SoutheastAurelia {
   openConfigModal() {
     this.apiBaseUrl.value = this.config.baseUrl;
     this.apiKey.value = this.config.apiKey;
-    this.modelName.value = this.config.model;
+    this.config.savedModels = this.config.savedModels || [];
+    this.populateModelSelector();
+    this.renderSavedModels();
     // 有 key 和 url 就自动拉模型列表
     if (this.config.apiKey && this.config.baseUrl) this.fetchModelList();
     this.configModal.style.display = 'flex';
@@ -343,13 +346,53 @@ class SoutheastAurelia {
   saveConfig() {
     this.config.baseUrl = this.apiBaseUrl.value.trim() || 'https://api.openai.com/v1';
     this.config.apiKey = this.apiKey.value.trim();
-    this.config.model = this.modelName.value.trim() || 'gpt-4o';
-    this.saveConfigToStorage();
-    this.closeConfigModal();
-    // 自动拉取模型列表
-    if (this.config.apiKey && this.config.baseUrl) {
-      this.fetchModelList();
+    const selectedModel = this.modelName.value;
+    if (selectedModel) {
+      this.config.model = selectedModel;
+      // 加入已保存模型列表（去重）
+      this.config.savedModels = this.config.savedModels || [];
+      if (!this.config.savedModels.includes(selectedModel)) {
+        this.config.savedModels.push(selectedModel);
+      }
     }
+    this.saveConfigToStorage();
+    this.renderSavedModels();
+    this.closeConfigModal();
+  }
+
+  populateModelSelector() {
+    const sel = this.modelName;
+    sel.innerHTML = '<option value="">— 请选择 —</option>';
+    const all = (this.config.savedModels || []).slice();
+    if (this.config.model && !all.includes(this.config.model)) all.unshift(this.config.model);
+    all.forEach(id => {
+      const opt = document.createElement('option');
+      opt.value = id; opt.textContent = id;
+      sel.appendChild(opt);
+    });
+    sel.value = this.config.model || '';
+  }
+
+  renderSavedModels() {
+    const list = this.modelSavedList;
+    list.innerHTML = '';
+    const models = this.config.savedModels || [];
+    if (models.length === 0) {
+      list.innerHTML = '<p class="model-empty-hint">暂无已保存模型</p>';
+      return;
+    }
+    models.forEach(id => {
+      const item = document.createElement('div');
+      item.className = 'model-saved-item' + (id === this.config.model ? ' active' : '');
+      item.innerHTML = '<span class="model-saved-name">' + id + '</span><span class="model-saved-tag">已保存</span>';
+      item.addEventListener('click', () => {
+        this.config.model = id;
+        this.saveConfigToStorage();
+        this.modelName.value = id;
+        this.renderSavedModels();
+      });
+      list.appendChild(item);
+    });
   }
 
   async fetchModelList() {
@@ -361,19 +404,14 @@ class SoutheastAurelia {
       const data = await res.json();
       const models = (data.data || []).map(m => m.id || m.name).filter(Boolean);
       if (models.length === 0) return;
-      // 把模型列表写入 select
-      const sel = this.modelName;
-      sel.innerHTML = '';
+      // 把拉取到的模型也写入已保存列表
+      this.config.savedModels = this.config.savedModels || [];
       models.forEach(id => {
-        const opt = document.createElement('option');
-        opt.value = id; opt.textContent = id;
-        sel.appendChild(opt);
+        if (!this.config.savedModels.includes(id)) this.config.savedModels.push(id);
       });
-      // 若当前模型在列表中则选中
-      if (models.includes(this.config.model)) sel.value = this.config.model;
-      else this.config.model = models[0];
-      sel.value = this.config.model;
       this.saveConfigToStorage();
+      this.populateModelSelector();
+      this.renderSavedModels();
     } catch (e) { /* 静默失败 */ }
   }
 

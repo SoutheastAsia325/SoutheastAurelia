@@ -163,8 +163,10 @@ html, body {
 }
 .welcome-content {
   display: flex; flex-direction: column; align-items: center;
-  max-width: 440px; width: 100%; animation: fadeInUp 0.5s ease;
+  max-width: 440px; width: 100%; margin: 0 auto;
+  animation: fadeInUp 0.5s ease;
 }
+#welcomeTitle { display: block; width: 100%; margin: 0 auto; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .welcome-logo { margin-bottom: 16px; }
 .logo-text-big {
@@ -229,9 +231,11 @@ body.light .logo-text-big {
   padding: 16px;
 }
 .messages { display: flex; flex-direction: column; gap: 14px; }
-.message { display: flex; gap: 0; max-width: 85%; animation: msgIn 0.3s ease; }
+.message { display: flex; gap: 0; max-width: 85%; animation: msgIn 0.3s ease;
+  margin-left: 6%; margin-right: 6%;
+}
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.message.user { align-self: flex-end; flex-direction: row-reverse; }
+.message.user { align-self: flex-end; flex-direction: row-reverse; margin-right: 4%; }
 .message-avatar { display: none; }
 .message-content {
   padding: 10px 14px; border-radius: var(--radius-lg);
@@ -253,7 +257,7 @@ body.light .logo-text-big {
   align-self: center;
   flex-direction: column;
   align-items: center;
-  max-width: 90%;
+  max-width: 80%;
 }
 .message.ai .thinking-block,
 .message.ai .ai-text {
@@ -569,4 +573,24 @@ textarea:focus, input:focus, select:focus {
   width: 2px;
   min-width: 2px;
   font-weight: 300;
+}
+
+/* 已保存模型列表（多模型并存） */
+.model-saved-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.model-saved-list .model-empty-hint { font-size: 12px; color: var(--text-tertiary); }
+.model-saved-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; background: var(--bg-tertiary);
+  border-radius: 8px; cursor: pointer; transition: background 0.12s;
+  border: 1px solid transparent;
+}
+.model-saved-item:active { border-color: var(--accent); }
+.model-saved-item.active { border-color: var(--accent); background: var(--accent-bg); }
+.model-saved-item .model-saved-name {
+  font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.model-saved-item .model-saved-tag {
+  font-size: 10px; color: var(--text-tertiary); background: var(--bg-primary);
+  padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
 }
