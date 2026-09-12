@@ -75,10 +75,7 @@ class SoutheastAurelia {
     this.sessionsBtn = document.getElementById('sessionsBtn');
     this.sessionsBtn.addEventListener('click', () => { this.closeDrawer(); this.summarizeSession(); });
     this.configBtn.addEventListener('click', () => { this.closeDrawer(); this.openConfigModal(); });
-    this.aboutBtn.addEventListener('click', () => {
-      this.closeDrawer();
-      alert('SoutheastAurelia v1.1\n由 CalistaAI 开发并提供相关支持。');
-    });
+    this.aboutBtn.addEventListener('click', () => { this.closeDrawer(); this.showAboutModal(); });
 
     // 主题切换（菜单最下方）
     this.themeToggleBtn.addEventListener('click', () => {
@@ -215,6 +212,35 @@ class SoutheastAurelia {
       this.currentMode === 'advanced' ? '进阶' :
       'Agent';
     this.triggerLabel.textContent = label;
+  }
+
+  showAboutModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.display = 'flex';
+    modal.innerHTML =
+      '<div class="modal" style="max-width: 320px;">' +
+        '<div class="modal-header"><h3>关于 SoutheastAurelia</h3></div>' +
+        '<div class="modal-body" style="text-align: center; padding: 20px;">' +
+          '<p style="font-size: 15px; color: var(--text-primary); margin: 8px 0; line-height: 1.6;">' +
+            'SoutheastAurelia <strong>v1.1</strong>' +
+          '</p>' +
+          '<p style="font-size: 13px; color: var(--text-secondary); margin: 4px 0;">' +
+            '由 CalistaAI 开发并提供相关支持' +
+          '</p>' +
+          '<div style="margin-top: 16px; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">' +
+            '<p style="font-size: 12px; color: var(--text-tertiary); margin: 0 0 8px 0;">加入我们</p>' +
+            '<p style="font-size: 13px; color: var(--text-primary); margin: 0;">QQ群：1077927355</p>' +
+          '</div>' +
+          '<p style="font-size: 12px; color: var(--text-tertiary); margin: 12px 0 0 0;">' +
+            '期待与你一起探索 AI 的无限可能，交流技术，分享灵感。' +
+          '</p>' +
+        '</div>' +
+        '<div class="modal-footer"><button class="btn-primary" id="aboutOkBtn">好的</button></div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#aboutOkBtn').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   }
 
   openDrawer() { this.drawer.classList.add('active'); this.drawerOverlay.classList.add('active'); }
